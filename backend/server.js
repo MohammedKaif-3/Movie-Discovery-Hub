@@ -8,10 +8,22 @@ import wishlistRoutes from './routes/wishlistRoutes.js';
 dotenv.config();
 
 const app = express();
+const corsOrigins = (process.env.CORS_ORIGIN || '*')
+    .split(',')
+    .map((origin) => origin.trim().replace(/\/+$/, ''))
+    .filter(Boolean);
 
 app.disable('x-powered-by');
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: (origin, callback) => {
+        // Server-to-server, health checks, and local tools often omit Origin.
+        if (!origin || corsOrigins.includes('*')) return callback(null, true);
+
+        const normalizedOrigin = origin.replace(/\/+$/, '');
+        if (corsOrigins.includes(normalizedOrigin)) return callback(null, true);
+
+        return callback(new Error('CORS origin is not allowed by Trackzio Movie Hub API.'));
+    },
 }));
 app.use(express.json({ limit: '200kb' }));
 
