@@ -1,5 +1,6 @@
 import { memo, useCallback, useMemo } from 'react';
 import { ROUTES, SORT_OPTIONS, THEMES } from '../../constants/app.js';
+import logoUrl from '../../assets/logo.jpg';
 
 const ROUTE_OPTIONS = [ROUTES.DISCOVER, ROUTES.WISHLIST];
 
@@ -25,8 +26,8 @@ export const Header = memo(({
       <div className="mx-auto flex max-w-7xl flex-col gap-5 px-4 py-4 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-4">
-            <span className="brand-mark flex h-12 w-12 items-center justify-center rounded-md text-xl font-black shadow-2xl">
-              T
+            <span className="brand-mark flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-md shadow-2xl">
+              <img src={logoUrl} alt="Trackzio Movie Hub logo" className="h-full w-full object-cover" />
             </span>
             <div>
               <p className="accent-text text-xs font-black uppercase tracking-[0.22em]">Trackzio</p>
