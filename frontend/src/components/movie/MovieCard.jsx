@@ -1,35 +1,41 @@
 import { memo, useCallback } from 'react';
 import { MoviePoster } from './MoviePoster.jsx';
 
-export const MovieCard = memo(({ movie, saved, onToggle, onOpen }) => {
+export const MovieCard = memo(({ movie, saved, onToggle, onOpen, index = 0 }) => {
   const handleOpen = useCallback(() => onOpen(movie), [movie, onOpen]);
   const handleToggle = useCallback(() => onToggle(movie), [movie, onToggle]);
+  const primaryGenre = movie.genres?.[0] || 'Movie';
 
   return (
-    <article className="movie-card group overflow-hidden rounded-md border border-white bg-white/95 shadow-md shadow-zinc-900/5 transition duration-200 hover:-translate-y-1 hover:border-zinc-200 hover:shadow-xl hover:shadow-zinc-900/10">
-      <button type="button" onClick={handleOpen} className="relative block w-full text-left">
+    <article className="movie-card glass-card card-enter group overflow-hidden rounded-md border transition duration-500 hover:-translate-y-2" style={{ '--card-delay': `${Math.min(index, 18) * 35}ms` }}>
+      <button type="button" onClick={handleOpen} className="relative block w-full overflow-hidden text-left">
         <MoviePoster movie={movie} />
-        <span className="absolute right-2 top-2 rounded-full bg-zinc-950/85 px-2 py-1 text-xs font-bold text-white shadow backdrop-blur">
+        <div className="poster-vignette absolute inset-0 opacity-80 transition duration-500 group-hover:opacity-95" />
+        <span className="rating-badge absolute right-3 top-3 rounded-full px-2.5 py-1 text-xs font-black shadow-xl backdrop-blur">
           {Number(movie.rating || 0).toFixed(1)}
         </span>
+        <span className="genre-badge absolute bottom-3 left-3 max-w-[calc(100%-1.5rem)] rounded-full px-3 py-1 text-xs font-bold shadow-xl backdrop-blur">
+          {primaryGenre}
+        </span>
       </button>
-      <div className="space-y-3 p-3">
+      <div className="space-y-4 p-4">
         <div>
-          <button type="button" onClick={handleOpen} className="line-clamp-2 min-h-10 text-left text-sm font-semibold leading-5 text-zinc-950">
+          <button type="button" onClick={handleOpen} className="text-primary line-clamp-2 min-h-11 text-left text-base font-black leading-5 transition group-hover:opacity-90">
             {movie.title}
           </button>
-          <div className="mt-1 flex items-center justify-between text-xs text-zinc-500">
+          <div className="text-muted mt-2 flex items-center justify-between text-xs font-semibold">
             <span>{movie.releaseDate}</span>
+            <span>{movie.genres?.slice(0, 2).join(' / ') || 'Cinema'}</span>
           </div>
         </div>
         <button
           type="button"
           onClick={handleToggle}
-          className={`w-full rounded-md border px-3 py-2 text-sm font-semibold transition ${
-          saved ? 'border-zinc-900 bg-zinc-900 text-white hover:bg-zinc-700' : 'border-zinc-200 bg-[#f8f6f0] text-zinc-900 hover:border-zinc-900 hover:bg-white'
+          className={`interactive-button w-full rounded-md border px-3 py-2.5 text-sm font-black transition duration-300 ${
+          saved ? 'button-saved' : 'button-ghost'
           }`}
         >
-          {saved ? 'Saved' : 'Save'}
+          {saved ? 'Saved to Wishlist' : 'Add to Wishlist'}
         </button>
       </div>
     </article>

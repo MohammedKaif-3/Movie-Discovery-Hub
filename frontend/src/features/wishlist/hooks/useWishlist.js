@@ -26,13 +26,17 @@ export const useWishlist = ({ activeRoute, setWishlist, wishlist }) => {
 
   const handleToggle = useCallback(async (movie) => {
     setError('');
+    const movieId = String(movie.id);
 
     try {
       const payload = await toggleWishlist({ userId: USER_ID, movie });
       if (payload.action === 'removed') {
-        setWishlist((current) => current.filter((item) => item.movieId !== movie.id));
+        setWishlist((current) => current.filter((item) => String(item.movieId) !== movieId));
       } else if (payload.data) {
-        setWishlist((current) => [payload.data, ...current.filter((item) => item.movieId !== movie.id)]);
+        setWishlist((current) => [
+          payload.data,
+          ...current.filter((item) => String(item.movieId) !== movieId),
+        ]);
       }
     } catch (err) {
       setError(err.message);

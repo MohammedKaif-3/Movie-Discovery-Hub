@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { DEFAULT_FILTERS } from '../constants/app.js';
+import { DEFAULT_FILTERS, THEMES } from '../constants/app.js';
 import { AppContext } from './AppContextCore.js';
 
 const STORAGE_KEY = 'trackzio.movieHub.context.v1';
@@ -9,6 +9,7 @@ const defaultState = {
   filters: DEFAULT_FILTERS,
   scrollPositions: {},
   activeRoute: 'discover',
+  theme: THEMES.DARK,
   wishlist: [],
 };
 
@@ -36,6 +37,7 @@ export const AppProvider = ({ children }) => {
   const [searchQuery, setSearchQuery] = useState(initialState.searchQuery);
   const [filters, setFilters] = useState(initialState.filters);
   const [activeRoute, setActiveRoute] = useState(initialState.activeRoute);
+  const [theme, setTheme] = useState(initialState.theme || THEMES.DARK);
   const [wishlist, setWishlist] = useState(initialState.wishlist);
   const [movies, setMovies] = useState([]);
   const [selectedMovie, setSelectedMovie] = useState(null);
@@ -46,9 +48,10 @@ export const AppProvider = ({ children }) => {
       filters,
       scrollPositions: scrollPositionsRef.current,
       activeRoute,
+      theme,
       ...statePatch,
     }));
-  }, [activeRoute, filters, searchQuery]);
+  }, [activeRoute, filters, searchQuery, theme]);
 
   const getScrollPosition = useCallback((route) => scrollPositionsRef.current[route] || 0, []);
 
@@ -64,6 +67,10 @@ export const AppProvider = ({ children }) => {
   }, [persistState]);
 
   useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+  }, [theme]);
+
+  useEffect(() => {
     const persistBeforeExit = () => persistState();
     window.addEventListener('pagehide', persistBeforeExit);
     return () => window.removeEventListener('pagehide', persistBeforeExit);
@@ -77,14 +84,16 @@ export const AppProvider = ({ children }) => {
     saveScrollPosition,
     searchQuery,
     selectedMovie,
+    theme,
     wishlist,
     setActiveRoute,
     setFilters,
     setMovies,
     setSearchQuery,
     setSelectedMovie,
+    setTheme,
     setWishlist,
-  }), [activeRoute, filters, getScrollPosition, movies, saveScrollPosition, searchQuery, selectedMovie, wishlist]);
+  }), [activeRoute, filters, getScrollPosition, movies, saveScrollPosition, searchQuery, selectedMovie, theme, wishlist]);
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

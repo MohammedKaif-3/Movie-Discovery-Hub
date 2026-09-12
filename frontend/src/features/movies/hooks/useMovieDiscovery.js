@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { FALLBACK_GENRES, ROUTES } from '../../../constants/app.js';
 import { fetchGenres, fetchMovies } from '../../../services/api.js';
 import { useDebounce } from '../../../hooks/useDebounce.js';
+import { mergeUniqueMovies } from '../../../utils/movies.js';
 
 export const useMovieDiscovery = ({ activeRoute, filters, searchQuery, setMovies }) => {
   const [page, setPage] = useState(1);
@@ -11,10 +12,13 @@ export const useMovieDiscovery = ({ activeRoute, filters, searchQuery, setMovies
   const [genres, setGenres] = useState(FALLBACK_GENRES);
   const [error, setError] = useState('');
   const [source, setSource] = useState('network');
+  const activeRequestRef = useRef(0);
   const debouncedQuery = useDebounce(searchQuery, 300);
   const genreId = filters.genreId || '';
 
   const loadMovies = useCallback(async ({ nextPage = 1, append = false } = {}) => {
+    const requestId = activeRequestRef.current + 1;
+    activeRequestRef.current = requestId;
     const isAppend = append && nextPage > 1;
     setError('');
     isAppend ? setLoadingMore(true) : setLoading(true);
@@ -22,15 +26,21 @@ export const useMovieDiscovery = ({ activeRoute, filters, searchQuery, setMovies
 
     try {
       const payload = await fetchMovies({ genreId, query: debouncedQuery, page: nextPage });
-      setMovies((current) => (isAppend ? [...current, ...payload.data] : payload.data));
+      if (requestId !== activeRequestRef.current) return;
+
+      setMovies((current) => (isAppend ? mergeUniqueMovies(current, payload.data) : mergeUniqueMovies([], payload.data)));
       setPage(payload.page);
       setTotalPages(payload.totalPages);
       setSource(payload.source);
     } catch (err) {
+      if (requestId !== activeRequestRef.current) return;
+
       setError(err.message);
       if (!isAppend) setMovies([]);
     } finally {
-      isAppend ? setLoadingMore(false) : setLoading(false);
+      if (requestId === activeRequestRef.current) {
+        isAppend ? setLoadingMore(false) : setLoading(false);
+      }
     }
   }, [debouncedQuery, genreId, setMovies]);
 

@@ -4,7 +4,7 @@ import { DetailPanel } from '../components/movie/DetailPanel.jsx';
 import { EmptyState } from '../components/feedback/EmptyState.jsx';
 import { ErrorBlock } from '../components/feedback/ErrorBlock.jsx';
 import { MovieGrid } from '../components/movie/MovieGrid.jsx';
-import { ROUTES } from '../constants/app.js';
+import { ROUTES, THEMES } from '../constants/app.js';
 import { SkeletonGrid } from '../components/feedback/SkeletonGrid.jsx';
 import { sortMovies } from '../utils/movieSort.js';
 import { useAppContext } from '../context/useAppContext.js';
@@ -27,7 +27,9 @@ export const MovieHub = () => {
     setMovies,
     setSearchQuery,
     setSelectedMovie,
+    setTheme,
     setWishlist,
+    theme,
     wishlist,
   } = useAppContext();
 
@@ -61,6 +63,10 @@ export const MovieHub = () => {
     setFilters((current) => ({ ...current, genreId }));
   }, [setFilters]);
 
+  const handleThemeToggle = useCallback(() => {
+    setTheme((current) => (current === THEMES.DARK ? THEMES.LIGHT : THEMES.DARK));
+  }, [setTheme]);
+
   const handleCloseDetail = useCallback(() => setSelectedMovie(null), [setSelectedMovie]);
 
   const handleRetry = useCallback(() => {
@@ -77,11 +83,13 @@ export const MovieHub = () => {
     filters,
     genres: movieDiscovery.genres,
     searchQuery,
+    theme,
     onGenreChange: handleGenreChange,
     onRouteChange: setActiveRoute,
     onSearchChange: setSearchQuery,
     onSortChange: handleSortChange,
-  }), [activeRoute, filters, handleGenreChange, handleSortChange, movieDiscovery.genres, searchQuery, setActiveRoute, setSearchQuery]);
+    onThemeToggle: handleThemeToggle,
+  }), [activeRoute, filters, handleGenreChange, handleSortChange, handleThemeToggle, movieDiscovery.genres, searchQuery, setActiveRoute, setSearchQuery, theme]);
 
   useScrollMemory({ activeRoute, getScrollPosition, saveScrollPosition });
 
@@ -91,34 +99,40 @@ export const MovieHub = () => {
     loading: movieDiscovery.loading,
     loadingMore: movieDiscovery.loadingMore,
     page: movieDiscovery.page,
+    resetKey: `${activeRoute}:${filters.genreId || 'all'}:${searchQuery.trim().toLowerCase()}`,
     totalPages: movieDiscovery.totalPages,
     onLoadMore: movieDiscovery.loadNextPage,
   });
 
   return (
     <AppShell headerProps={headerProps}>
-      <section className="mb-6 overflow-hidden rounded-md border border-white/80 bg-white/85 p-5 shadow-xl shadow-zinc-900/5 backdrop-blur">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <section className="hero-panel animate-slide-in mb-6 overflow-hidden rounded-md border p-6 shadow-2xl backdrop-blur-2xl">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.18em] text-zinc-500">
+            <p className="accent-text text-xs font-black uppercase tracking-[0.22em]">
               {activeRoute === ROUTES.WISHLIST ? 'Your saved shelf' : activeGenre?.name || 'Trending now'}
             </p>
-            <h2 className="mt-1 text-2xl font-black text-zinc-950">
+            <h2 className="text-primary mt-2 max-w-2xl text-4xl font-black tracking-normal sm:text-5xl">
               {activeRoute === ROUTES.WISHLIST ? `${wishlistFeature.savedWishlist.length} saved titles` : `${sortedMovies.length} movies ready`}
             </h2>
-            <p className="mt-1 text-sm text-zinc-500">
+            <p className="text-muted mt-3 max-w-2xl text-sm leading-6">
               {activeRoute === ROUTES.WISHLIST
                 ? 'Only movies saved in MongoDB appear here.'
                 : searchQuery.trim()
                   ? `Showing results for "${searchQuery.trim()}".`
-                  : 'Use genre chips or the dropdown to shape the feed.'}
+                  : 'A cinematic workspace with cached discovery, genre browsing, and persistent saves.'}
             </p>
           </div>
-        {activeRoute === ROUTES.DISCOVER && (
-          <p className="rounded-full bg-zinc-950 px-3 py-1 text-xs font-semibold uppercase tracking-normal text-white shadow-md shadow-zinc-950/10">
-            Source: {movieDiscovery.source}
-          </p>
-        )}
+          <div className="flex flex-wrap gap-3">
+            <div className="metric-pill rounded-md border px-4 py-3">
+              <p className="text-muted text-xs font-bold uppercase tracking-[0.16em]">Source</p>
+              <p className="text-primary mt-1 text-sm font-black">{activeRoute === ROUTES.DISCOVER ? movieDiscovery.source : 'MongoDB'}</p>
+            </div>
+            <div className="metric-pill rounded-md border px-4 py-3">
+              <p className="text-muted text-xs font-bold uppercase tracking-[0.16em]">Mode</p>
+              <p className="text-primary mt-1 text-sm font-black">{activeRoute}</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -137,7 +151,7 @@ export const MovieHub = () => {
       )}
 
       {movieDiscovery.loadingMore && <div className="mt-6"><SkeletonGrid /></div>}
-      <div ref={sentinelRef} className="h-12" />
+      <div ref={sentinelRef} className="scroll-sentinel h-16" />
 
       <DetailPanel
         movie={selectedMovie}

@@ -3,11 +3,8 @@ import { useEffect } from 'react';
 export const useScrollMemory = ({ activeRoute, getScrollPosition, saveScrollPosition }) => {
   useEffect(() => {
     const route = activeRoute;
-    const savedTop = getScrollPosition(route);
-    const latestTop = { current: savedTop };
+    const latestTop = { current: getScrollPosition(route) };
     const frame = { current: 0 };
-
-    window.scrollTo({ top: savedTop, behavior: 'instant' });
 
     const onScroll = () => {
       if (frame.current) return;

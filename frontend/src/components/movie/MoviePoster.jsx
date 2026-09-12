@@ -1,7 +1,7 @@
 import { memo } from 'react';
 
-export const MoviePoster = memo(({ movie }) => (
-  <div className="aspect-[2/3] overflow-hidden rounded-md bg-stone-200">
+export const MoviePoster = memo(({ movie, className = '' }) => (
+  <div className={`aspect-[2/3] overflow-hidden rounded-md bg-stone-200 ${className}`}>
     {movie.posterPath ? (
       <img
         src={movie.posterPath}

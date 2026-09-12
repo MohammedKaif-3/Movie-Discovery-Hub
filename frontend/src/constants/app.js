@@ -5,6 +5,11 @@ export const ROUTES = {
   WISHLIST: 'wishlist',
 };
 
+export const THEMES = {
+  LIGHT: 'light',
+  DARK: 'dark',
+};
+
 export const SORT_OPTIONS = {
   POPULAR: 'popular',
   RATING: 'rating',
