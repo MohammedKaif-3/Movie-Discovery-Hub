@@ -2,18 +2,7 @@
 
 Live application: https://frontend-eta-silk-qjl241511n.vercel.app/
 
-Git repository: https://github.com/MohammedKaif-3/Movie-Discovery-Hub
-
 Trackzio Movie Hub is a full-stack movie discovery application built with React, Node.js/Express, and MongoDB. The frontend never calls TMDB directly. All external movie data flows through the Node API gateway, where it is cached, sanitized, transformed, and serialized before reaching the browser.
-
-## Deliverables
-
-1. Working application: deployed frontend is available at the live link above.
-2. Frontend source code: available in `frontend/`.
-3. Node.js backend: available in `backend/`.
-4. Database/schema: MongoDB persistence is implemented with the Mongoose wishlist schema.
-5. Git repository: linked above.
-6. README: this file contains setup instructions, approach, technical decisions, assumptions, known limitations, AI usage, and future improvements.
 
 ## Setup Instructions
 
